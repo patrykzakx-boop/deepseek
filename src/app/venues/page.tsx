@@ -8,6 +8,7 @@ async function getVenues(city?: string) {
     return await prisma.venue.findMany({
       where: {
         isPublished: true,
+        status: "APPROVED",
         ...(city ? { city: { contains: city, mode: "insensitive" } } : {}),
       },
       include: { images: true },

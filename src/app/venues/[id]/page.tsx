@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import BookingForm from "@/components/BookingForm";
+import { auth } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -10,12 +11,13 @@ export default async function VenueDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const session = await auth();
 
   const venue = await prisma.venue.findUnique({
     where: { id },
     include: {
       images: true,
-      owner: { select: { name: true } },
+      owner: { select: { id: true, name: true } },
       bookings: {
         where: { status: { in: ["PENDING", "CONFIRMED"] } },
         select: { eventDate: true },
@@ -24,6 +26,14 @@ export default async function VenueDetailPage({
   });
 
   if (!venue) notFound();
+
+  const isOwner = session?.user?.id === venue.owner.id;
+  const isAdmin = session?.user?.role === "ADMIN";
+
+  // Niezatwierdzone miejsca widoczne tylko dla właściciela i administratora
+  if (venue.status !== "APPROVED" && !isOwner && !isAdmin) {
+    notFound();
+  }
 
   const bookedDates = venue.bookings.map((b) => b.eventDate.toISOString());
 

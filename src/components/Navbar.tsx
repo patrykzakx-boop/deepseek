@@ -17,6 +17,11 @@ export default function Navbar({ session }: { session: Session | null }) {
 
           {session?.user ? (
             <>
+              {session.user.role === "ADMIN" && (
+                <Link href="/admin" className="hover:text-rose-600">
+                  Panel administratora
+                </Link>
+              )}
               {session.user.role === "OWNER" && (
                 <>
                   <Link href="/venues/new" className="hover:text-rose-600">

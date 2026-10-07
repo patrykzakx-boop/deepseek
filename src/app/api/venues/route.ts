@@ -11,6 +11,7 @@ export async function GET(req: Request) {
   const venues = await prisma.venue.findMany({
     where: {
       isPublished: true,
+      status: "APPROVED",
       ...(city ? { city: { contains: city, mode: "insensitive" } } : {}),
       ...(minCapacity ? { capacity: { gte: Number(minCapacity) } } : {}),
     },

@@ -18,6 +18,25 @@ export const venueSchema = z.object({
   images: z.array(z.string().url()).default([]),
 });
 
+export const onboardingSchema = z.object({
+  phone: z.string().min(6, "Podaj prawidłowy numer telefonu"),
+  city: z.string().min(2, "Podaj miasto"),
+  bio: z.string().max(500).optional(),
+  companyName: z.string().optional(),
+  image: z.string().url().optional().or(z.literal("")),
+});
+
+export const adminUpdateUserSchema = z.object({
+  role: z.enum(["CUSTOMER", "OWNER", "ADMIN"]).optional(),
+  isBanned: z.boolean().optional(),
+  banReason: z.string().optional(),
+});
+
+export const adminUpdateVenueSchema = z.object({
+  status: z.enum(["PENDING_REVIEW", "APPROVED", "REJECTED"]),
+  rejectReason: z.string().optional(),
+});
+
 export const bookingSchema = z.object({
   venueId: z.string().cuid(),
   eventDate: z.coerce.date(),

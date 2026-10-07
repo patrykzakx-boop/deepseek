@@ -45,8 +45,30 @@ export default async function DashboardPage() {
             <div key={venue.id} className="rounded-xl border border-zinc-200 bg-white p-5">
               <div className="flex items-center justify-between">
                 <h2 className="font-semibold text-zinc-900">{venue.name}</h2>
-                <span className="text-sm text-zinc-500">{venue.city}</span>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-medium ${
+                      venue.status === "APPROVED"
+                        ? "bg-green-100 text-green-700"
+                        : venue.status === "REJECTED"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-amber-100 text-amber-700"
+                    }`}
+                  >
+                    {venue.status === "APPROVED"
+                      ? "Zatwierdzone"
+                      : venue.status === "REJECTED"
+                      ? "Odrzucone"
+                      : "Oczekuje na akceptację"}
+                  </span>
+                  <span className="text-sm text-zinc-500">{venue.city}</span>
+                </div>
               </div>
+              {venue.status === "REJECTED" && venue.rejectReason && (
+                <p className="mt-1 text-xs text-red-600">
+                  Powód odrzucenia: {venue.rejectReason}
+                </p>
+              )}
 
               {venue.bookings.length === 0 ? (
                 <p className="mt-3 text-sm text-zinc-500">

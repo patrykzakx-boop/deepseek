@@ -7,8 +7,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum Role {
@@ -24,6 +25,12 @@ enum BookingStatus {
   REJECTED
 }
 
+enum VenueStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -32,6 +39,17 @@ model User {
   image         String?
   role          Role      @default(CUSTOMER)
   emailVerified DateTime?
+
+  // Profil / kreator profilu
+  phone               String?
+  bio                 String?  @db.Text
+  city                String?
+  companyName         String? // dla właścicieli miejsc (opcjonalna firma)
+  onboardingCompleted Boolean  @default(false)
+
+  // Moderacja / panel administratora
+  isBanned  Boolean @default(false)
+  banReason String?
 
   venues   Venue[]   @relation("OwnerVenues")
   bookings Booking[] @relation("CustomerBookings")
@@ -42,6 +60,8 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([role])
 }
 
 // Modele wymagane przez @auth/prisma-adapter (NextAuth)
@@ -99,13 +119,16 @@ model Venue {
   availability  Availability[]
   reviews       Review[]
 
-  isPublished Boolean @default(true)
+  isPublished Boolean     @default(true)
+  status      VenueStatus @default(PENDING_REVIEW)
+  rejectReason String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([city])
   @@index([ownerId])
+  @@index([status])
 }
 
 model VenueImage {
